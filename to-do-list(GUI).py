@@ -1,8 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
 
-# Functions
-
 # Save tasks to a file
 def save_tasks():
     with open("tasks.txt", "w") as f:
@@ -13,7 +11,7 @@ def save_tasks():
 def load_tasks():
     try:
         with open("tasks.txt", "r") as f:
-            for lie in f:
+            for line in f:
                 task_listbox.insert(tk.END, line.strip())
     except FileNotFoundError:
         pass
@@ -21,33 +19,44 @@ def load_tasks():
 # Add a new task
 def add_task():
     task = task_entry.get()
-    if task: # If not empty
+    if task:  # If not empty
         task_listbox.insert(tk.END, task)
         task_entry.delete(0, tk.END)
-        save_tasks()  # save instantly
+        save_tasks()
     else:
-        messagebox.showwarning("Warning", "Select a task to delete!")
+        messagebox.showwarning("Warning", "Enter a task!")
+
+# Delete selected task
+def delete_task():
+    try:
+        selected = task_listbox.curselection()
+        if selected:
+            task_listbox.delete(selected[0])
+            save_tasks()
+        else:
+            messagebox.showwarning("Warning", "Select a task to delete!")
+    except:
+        messagebox.showwarning("Warning", "No task selected!")
 
 # Mark selected task as done
 def mark_done():
-    selected = task_listbox.get(selected[0])
+    selected = task_listbox.curselection()
     if selected:
         task = task_listbox.get(selected[0])
-        if not task.startwith("✅"): # avoid double marking
+        if not task.startswith("✅"):  # avoid double marking
             task_listbox.delete(selected[0])
-            task_listbox.insert(selected[0], "✅" + task)
-            save_tasks()   # save instantly
+            task_listbox.insert(selected[0], "✅ " + task)
+            save_tasks()
     else:
         messagebox.showwarning("Warning", "Select a task to mark done!")
 
-#---GUI---
-
+# --- GUI ---
 root = tk.Tk()
 root.title("To-Do List")
 root.geometry("420x480")
 
 # Entry field for new task
-task_entry = tk.Entry(root, width=30, font=("Arial, 12"))
+task_entry = tk.Entry(root, width=30, font=("Arial", 12))
 task_entry.pack(pady=10)
 
 # Buttons
@@ -56,7 +65,6 @@ add_button.pack(pady=5)
 
 delete_button = tk.Button(root, text="Delete Task", width=15, command=delete_task)
 delete_button.pack(pady=5)
-
 
 done_button = tk.Button(root, text="Mark as Done", width=15, command=mark_done)
 done_button.pack(pady=5)
@@ -85,4 +93,4 @@ load_tasks()
 # Save tasks when closing
 root.protocol("WM_DELETE_WINDOW", lambda: [save_tasks(), root.destroy()])
 
-root.mainloop
+root.mainloop()
